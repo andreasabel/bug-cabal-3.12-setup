@@ -7,15 +7,18 @@ Conditions:
 - custom setup (can be default `Setup.hs`), so that `Cabal-3.12` is used
 - building a `library` (not just an `executable`)
 - using a build-tool: we use `happy` here to shadow a `.hs` file by a `.y` file
+- `hs-source-dirs` is not `.` but e.g. `src`
 
 Files:
-- `fred.cabal` with `build-type: Custom`
+- `fred.cabal` with
+  * `build-type: Custom`
+  * `library` with `hs-source-dirs: src` (in particular not `.`)
 - `Setup.hs` (standard)
-- `Fred.y`: processed by `happy`
-- `Fred.hs`: stale code that should be shadowed by `Fred.y` always
+- `src/Fred.y`: processed by `happy`
+- `src/Fred.hs`: stale code that should be shadowed by `Fred.y` always
 
 In this setting `cabal v1-install` malfunctions if `ghc` is `ghc-9.10.1`.  (Works with older GHCs.)
-It picks up `Fred.hs` instead of `dist/build/Fred.hs` that is created by `happy` from `Fred.y`.
+It picks up `src/Fred.hs` instead of `dist/build/Fred.hs` that is created by `happy` from `src/Fred.y`.
 
 Looking at the verbose output `cabal v1-install -v3`, we notice a difference in the call to `ghc` when the GHC is 9.10.1.
 
@@ -23,7 +26,7 @@ Looking at the verbose output `cabal v1-install -v3`, we notice a difference in 
 
         /usr/local/bin/ghc --make -fbuilding-cabal-package \
           ...
-          -i. -idist/build \
+          -isrc -idist/build \
           ... \
           Fred
 
@@ -33,7 +36,7 @@ Looking at the verbose output `cabal v1-install -v3`, we notice a difference in 
 
         /usr/local/bin/ghc --make -fbuilding-cabal-package \
           ... \
-          -idist/build -i. \
+          -idist/build -isrc \
           ... \
           Fred
 
@@ -43,7 +46,7 @@ When building with GHC 9.8, library `Cabal-3.10` is used which places the path `
 
 Full calls:
 
-- GHC 9.10
+- GHC 9.10 / Cabal-3.12
 
         /usr/local/bin/ghc --make -fbuilding-cabal-package -O -static -dynamic-too -dynosuf dyn_o -dynhisuf dyn_hi \
           -outputdir dist/build -odir dist/build -hidir dist/build \
@@ -62,7 +65,7 @@ Full calls:
 
         [1 of 2] Compiling Main ( Fred.hs, dist/build/Main.o, ...
 
-- GHC 9.8
+- GHC 9.8 / Cabal-3.10
 
         /usr/local/bin/ghc --make -fbuilding-cabal-package -O -static -dynamic-too -dynosuf dyn_o -dynhisuf dyn_hi \
           -outputdir dist/build -odir dist/build -hidir dist/build \

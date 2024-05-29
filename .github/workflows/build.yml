@@ -9,8 +9,8 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - macos-12
-          - windows-2022
+        # - macos-12
+        # - windows-2022
         ghc:
           - 9.10.1
           - 9.8.2

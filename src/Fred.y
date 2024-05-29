@@ -1,4 +1,5 @@
 {
+module Fred where
 }
 
 %name parser
