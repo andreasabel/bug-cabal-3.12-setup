@@ -4,29 +4,37 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os:
+          - ubuntu-22.04
+          - macos-12
+          - windows-2022
         ghc:
           - 9.10.1
           - 9.8.2
-          - 9.6.5
-          - 9.4.8
+        # - 9.6.5
+        # - 9.4.8
         cabal:
           - 3.11.0.0.2024.4.19
           - 3.10.3.0
-          - 3.10.2.1
-          - 3.8.1.0
-          - 3.6.2.0
+        # - 3.10.2.1
+        # - 3.8.1.0
+        # - 3.6.2.0
       fail-fast: false
+
     steps:
+
       - uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: ${{ matrix.cabal }}
           cabal-update: true
           ghcup-release-channel: https://raw.githubusercontent.com/haskell/ghcup-metadata/master/ghcup-prereleases-0.0.8.yaml
+
       - run: cabal v1-install happy
 
       - uses: actions/checkout@v4
+
       - run: cabal v1-install -v3
